@@ -1,0 +1,24 @@
+// Some useful defaults
+
+
+// Import the defaults from libraies
+
+@import "../../../pstj/less/ng-cloak";
+@import "../../../pstj/less/reset";
+
+
+// Disable focus outline (Android)
+*:focus {
+  outline-style:none;
+}
+
+// Make iOS NOT display the focus when you tap.
+html {
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+// Some tweaking for ipad mini and chrome mobile
+body {
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
