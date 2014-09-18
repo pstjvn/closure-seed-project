@@ -142,6 +142,9 @@ endef
 all: $(BUILDDIR)/$(NS)-cssmap.js $(BUILDDIR)/deps.js
 	@echo 'All done'
 
+################################################################################
+# CHECK JS VALIDITY
+
 
 # same as above but also build deps in local project
 commit: $(BUILDDIR)/deps.js check
@@ -161,6 +164,25 @@ lintdeps = js/**
 	js/
 	@touch .linted
 
+.pstjlint: ../pstj/**.js
+	@gjslint \
+	--jslint_error=all \
+	--strict \
+	--max_line_length 80 \
+	-e "vendor,tpl" \
+	$(LINTFLAGS) \
+	../pstj/
+	touch .pstjlint
+
+.smjslint: ../smjs/**.js
+	@gjslint \
+	--jslint_error=all \
+	--strict \
+	--max_line_length 80 \
+	-e "vendor,tpl" \
+	$(LINTFLAGS) \
+	../smjs/
+	touch .smjslint
 
 # Build the template files for the project only.
 # Because we use translation file by default we also depend on the translation and
@@ -314,7 +336,7 @@ compact: advanced
 	node ../../node/inline.js $(NS)-deploy.html
 	@echo 'Done'
 
-check: .linted js/** ../pstj/**.js ../smjs/**.js
+check: .linted .pstjlint .smjslint js/** ../pstj/**.js ../smjs/**.js
 	$(COMPILER) \
 	--compilation_level=ADVANCED \
 	--js="$(BUILDDIR)/cssmap-build.js"  \
