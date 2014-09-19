@@ -139,7 +139,7 @@ endef
 # For basic run we require the css map, the css itself (intermediate requirement
 # from the css map) and the depencency file. The templates also require to be
 # built but those are also transeient requirement by the deps.
-all: $(BUILDDIR)/$(NS)-cssmap.js $(BUILDDIR)/deps.js
+all: $(BUILDDIR)/$(NS)-cssmap.js $(BUILDDIR)/deps.js .pstjdeps .smjsdeps
 	@echo 'All done'
 
 ################################################################################
@@ -152,7 +152,7 @@ commit: $(BUILDDIR)/deps.js check
 # Linting all source files in the current project. Note that we monitor for
 # changes in those file and linter is always run when a single file changes.
 LINTFLAGS?=-r
-lintdeps = js/**
+lintdeps = js/**.js
 .linted: $(lintdeps)
 	@echo -n 'Linting...'
 	@gjslint \
@@ -164,7 +164,7 @@ lintdeps = js/**
 	js/
 	@touch .linted
 
-.pstjlint: ../pstj/**.js
+.pstjlint: ../pstj/*/**.js
 	@gjslint \
 	--jslint_error=all \
 	--strict \
@@ -174,7 +174,7 @@ lintdeps = js/**
 	../pstj/
 	touch .pstjlint
 
-.smjslint: ../smjs/**.js
+.smjslint: ../smjs/*/**.js
 	@gjslint \
 	--jslint_error=all \
 	--strict \
@@ -227,7 +227,7 @@ $(I18NDIR)/translations_$(LOCALE).xlf: $(TERMPLATES_SOURCES)
 # possible files we might use even if we not really use them (as those might not
 # be imported in the app less file.
 # List of static files that are dependencies.
-lesssourcess = less/$(NS).less less/$(NS)/*.less ../smjs/less/*.less ../pstj/less/*.less ../pstj/less/elements/*.less
+lesssourcess = less/$(NS).less less/$(NS)/*.less ../smjs/less/*.less ../pstj/less/**.less
 less/$(NS).css: $(lesssourcess)
 	@echo -n 'Building CSS from LESS...'
 	lessc --no-ie-compat less/$(NS).less > less/$(NS).css
@@ -267,7 +267,7 @@ $(BUILDDIR)/cssmap-build.js: $(BUILDDIR)/$(NS).build.css
 # pstj lib files
 # pstj templates
 # simple css names map
-simpledeps = $(BUILDDIR)/$(NS)-cssmap.js js/** ../pstj/**.js
+simpledeps = $(BUILDDIR)/$(NS)-cssmap.js js/** ../pstj/*/**.js
 $(BUILDDIR)/$(NS).simple.js: $(simpledeps)
 	@echo 'Performing simple compilation...'
 	$(COMPILER) \
@@ -288,7 +288,7 @@ simple: $(BUILDDIR)/$(NS).simple.js
 # local templates
 # pstj lib js files
 # pstj templates
-advanceddeps=$(BUILDDIR)/cssmap-build.js js/** $(TEMPLATE_TMP_DIR)/$(LOCALE)/*.js ../pstj/**.js
+advanceddeps=$(BUILDDIR)/cssmap-build.js js/** $(TEMPLATE_TMP_DIR)/$(LOCALE)/*.js ../pstj/*/**.js
 $(BUILDDIR)/$(NS).advanced.js: $(advanceddeps)
 	@echo 'Performing advanced compilation...'
 	$(COMPILER) \
@@ -305,7 +305,7 @@ advanced: $(BUILDDIR)/$(NS).build.css $(BUILDDIR)/$(NS).advanced.js
 	@echo 'Done'
 
 
-$(BUILDDIR)/$(NS).debug.js: $(BUILDDIR)/$(NS)-cssmap.js js/** ../pstj/**.js $(TEMPLATE_TMP_DIR)/$(LOCALE)/*.js
+$(BUILDDIR)/$(NS).debug.js: $(BUILDDIR)/$(NS)-cssmap.js js/** ../pstj/*/**.js $(TEMPLATE_TMP_DIR)/$(LOCALE)/*.js
 	@echo 'Building debug JS...'
 	$(COMPILER) \
 	--compilation_level=ADVANCED \
@@ -336,20 +336,22 @@ compact: advanced
 	node ../../node/inline.js $(NS)-deploy.html
 	@echo 'Done'
 
-check: .linted .pstjlint .smjslint js/** ../pstj/**.js ../smjs/**.js
+check: js/** ../pstj/*/**.js ../smjs/*/**.js
 	$(COMPILER) \
 	--compilation_level=ADVANCED \
 	--js="$(BUILDDIR)/cssmap-build.js"  \
 	--js_output_file=/dev/null
 	@echo 'Done'
 
+checkall: .linted .pstjlint .smjslint check
+
 libdeps: .pstjdeps .smjsdeps
 	@echo 'All library deps up to date'
 
-.pstjdeps: ../pstj/**.js
+.pstjdeps: ../pstj/*/**.js
 	cd ../pstj/ && make libdeps
 	touch .pstjdeps
 
-.smjsdeps: ../smjs/**.js
+.smjsdeps: ../smjs/*/**.js
 	cd ../smjs/ && make libdeps
 	touch .smjsdeps
