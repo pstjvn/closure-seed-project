@@ -1,71 +1,21 @@
 <!doctype html>
 <html>
-  <head>
-    <title>My App</title>
-    <meta content="width=device-width, maximum-scale=1.0, user-scalable=no" name="viewport">
-    <!--Enable this when you feel confident you will be building the less files after each change-->
-    <!--<link rel="stylesheet" href="build/app.css">-->
-    <!--REMOVE IN PRODUCTION-->
-    <link rel="stylesheet/less" type="text/css" href="less/app.less">
-    <script>
-      var less = {
-        env: "development",
-        poll: 1000
-      };
-    </script>
-    <script src="libs/less.js" type="text/javascript"></script>
-    <!--end REMOVE IN PRODUCTION -->
-    <script>
-      var PSTJ = {
-        NGAGENT: {
-          USE_NEXT_TICK: false
-        }
-      };
-    </script>
-    <style>
-      html, body {
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        font-family: 'Lato', sans-serif;
-        font-weight: normal;
-      }
-
-      .loader {
-        top: 0;
-        left: 0;
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        font-size: 33px;
-        color: white;
-        z-index: 10000;
-        background-color: #0D3144;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="loader">
-      Loading...
-    </div>
-    <!--The css map to use in development-->
-    <script src="build/app-cssmap.js"></script>
-    <!--Include base of closure lib-->
-    <script src="../../library/closure/goog/base.js"></script>
-    <!--Includes the pstj lib as we often rely on it-->
-    <script src="../pstj/deps.js"></script>
-    <!-- Include template dependencies -->
-    <script src="../../templates/deps.js"></script>
-    <!--Include local deps-->
-    <script src="build/deps.js"></script>
-    <script>goog.require('app');</script>
-
-    <!--Ready to use built script-->
-    <!--<script src="build/app.build.js"></script>-->
-
-  </body>
+	<head>
+		<title>Please fill in your title...</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta content="width=device-width, maximum-scale=1.0, user-scalable=no" name="viewport">
+		<!--<link rel="stylesheet" href="build/app.css" type="text/css">-->
+		<link rel="stylesheet/less" type="text/css" href="less/app.less">
+    <script> var less = { env: "development", poll: 1000 }; </script>
+    <script src="libs/less.min.js"></script>
+	</head>
+	<body>
+		<script src="build/app-cssmap.js"></script>
+		<script src="../../library/closure/goog/base.js"></script>
+		<script src="../../templates/deps.js"></script>
+		<script src="../pstj/deps.js"></script>
+		<script src="build/deps.js"></script>
+		<script>goog.require('app');</script>
+		<!--<script src="build/app.build.js"></script>-->
+	</body>
 </html>
