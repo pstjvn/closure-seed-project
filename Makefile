@@ -55,7 +55,7 @@ TEMPLATE_TMP_DIR=tpl/
 # The sources of the templates.
 TEMPLATES_SOURCE_DIR=templates/
 
-# common libs
+# common library paths
 PSTJ=../pstj/
 SMJS=../smjs/
 GCW=../gcw/
@@ -78,7 +78,7 @@ MESSAGE_EXTRACTOR_JAR=../../templates/SoyMsgExtractor.jar
 STYLES_COMPILER_JAR=../../stylesheets/closure-stylesheets.jar
 
 EXTERNS_PATH=../../externs/
-CLOSURE_BUILDER ?= ../../library/closure/bin/build/closurebuilder.py
+CLOSURE_BUILDER=$(LIBRARY_PATH)closure/bin/build/closurebuilder.py
 
 
 # Inlude for all javascript sources we know of. Note that the compiler will
@@ -88,7 +88,35 @@ CLOSURE_BUILDER ?= ../../library/closure/bin/build/closurebuilder.py
 define JSSOURCES
 --js="js/**.js" \
 --js="tpl/$(LOCALE)/**.js" \
---js="../pstj/**.js" \
+--js="../pstj/animation/**.js" \
+--js="../pstj/cast/**.js" \
+--js="../pstj/color/**.js" \
+--js="../pstj/config/**.js" \
+--js="../pstj/control/**.js" \
+--js="../pstj/date/**.js" \
+--js="../pstj/debug/**.js" \
+--js="../pstj/ds/**.js" \
+--js="../pstj/error/**.js" \
+--js="../pstj/fx/**.js" \
+--js="../pstj/graphics/**.js" \
+--js="../pstj/material/**.js" \
+--js="../pstj/math/**.js" \
+--js="../pstj/mvc/**.js" \
+--js="../pstj/ng/**.js" \
+--js="../pstj/object/**.js" \
+--js="../pstj/resource/**.js" \
+--js="../pstj/storage/**.js" \
+--js="../pstj/style/**.js" \
+--js="../pstj/themes/**.js" \
+--js="../pstj/ui/**.js" \
+--js="../smjs/ds/**.js" \
+--js="../smjs/persistence/**.js" \
+--js="../smjs/player/**.js" \
+--js="../smjs/remotecontrol/**.js" \
+--js="../smjs/templates/**.js" \
+--js="../smjs/transport/**.js" \
+--js="../smjs/tv/**.js" \
+--js="../smjs/widgets/**.js" \
 --js="../../templates/soyutils_usegoog.js" \
 --js="../../library/closure/goog/**.js" \
 --js="!**_test.js" \
@@ -96,33 +124,65 @@ define JSSOURCES
 --js="../../library/third_party/closure/goog/mochikit/async/deferredlist.js"
 endef
 
+# Following definitions are used only by the closure builder script.
+# We use it instead of the closure compiler to produce filelist for the
+# compiler to build from as the former works much faster.
+define JSROOTS
+--root=js/ \
+--root=$(TEMPLATE_TMP_DIR)/$(LOCALE)/ \
+--root=$(PSTJ) \
+--root=$(SMJS) \
+--root=$(TEMPLATES_PATH) \
+--root=$(LIBRARY_PATH)
+endef
+
+define JSDEPS
+-f --js=build/deps.js \
+-f --js=$(TEMPLATES_PATH)/deps.js \
+-f --js=$(PSTJ)/deps.js \
+-f --js=$(SMJS)/deps.js \
+-f --js=$(GCW)/deps.js
+endef
 
 # Define all templates possible to be used.
 TERMPLATES_SOURCES = templates/*.soy ../pstj/templates/*.soy ../smjs/templates/*.soy
 
-# Define the basic compiler call
+# Default compiler call. Tweak this in the compilation steps.
 define COMPILER
-@java -jar $(COMPILER_JAR) \
-$(JSSOURCES) \
---flagfile=options/compile.ini \
+java -jar $(COMPILER_JAR) \
+--charset=UTF-8 \
+--closure_entry_point=$(NS) \
 --define='goog.LOCALE="$(LOCALE)"' \
 --define='goog.DEBUG=$(DEBUG)' \
---use_types_for_optimization \
---warning_level=VERBOSE \
+--flagfile=options/compile.ini \
 --manage_closure_dependencies \
---only_closure_dependencies \
 --process_closure_primitives \
---charset=UTF-8 \
---closure_entry_point=$(NS)
+--use_types_for_optimization \
+--warning_level=VERBOSE
 endef
 
+# Same as the compiler but exclude all files that are not to be used and
+# force it to read all files.
+define FILELISTER
+$(COMPILER) \
+--only_closure_dependencies \
+$(JSSOURCES)
+endef
 
 define GITIGNOREFILE
-build/
-$(TEMPLATE_TMP_DIR)
-help/
-*sublime-*
+build/ $(TEMPLATE_TMP_DIR) help/ *sublime-*
 endef
+
+# The file list for actual compilation. Note that because the compiler now
+# manages its dependencies alone if we want a clean compile we need to either
+# provide it with the files to include or use --only_closure_deps, but the later
+# excudes the css map file from the compile which results in a mismatch
+# between the css names in the templates and the css names in the js. Thus we
+# first generate a list of files to include (with only closire deps) and then we
+# use that file list plus the css map
+FL=`cat $(BUILDDIR)/filelist.txt | tr '\n' ' '`
+
+
 
 ################################################################################
 ###   TARGETED RULES
@@ -145,6 +205,8 @@ all: $(BUILDDIR)/$(NS)-cssmap.js $(BUILDDIR)/deps.js .pstjdeps .smjsdeps
 ################################################################################
 # CHECK JS VALIDITY
 
+gitignore:
+	echo '$(GITIGNOREFILE)' | tr ' ' '\n' > .gitignore
 
 # same as above but also build deps in local project
 commit: $(BUILDDIR)/deps.js check
@@ -158,6 +220,7 @@ lintdeps = js/**.js
 	@gjslint \
 	--jslint_error=all \
 	--strict \
+	--disable 0251 \
 	--max_line_length 80 \
 	-e "vendor,tpl" \
 	$(LINTFLAGS) \
@@ -168,8 +231,9 @@ lintdeps = js/**.js
 	@gjslint \
 	--jslint_error=all \
 	--strict \
+	--disable 0251 \
 	--max_line_length 80 \
-	-e "vendor,tpl" \
+	-e "vendor,tpl,nodejs" \
 	$(LINTFLAGS) \
 	../pstj/
 	touch .pstjlint
@@ -178,6 +242,7 @@ lintdeps = js/**.js
 	@gjslint \
 	--jslint_error=all \
 	--strict \
+	--disable 0251 \
 	--max_line_length 80 \
 	-e "vendor,tpl" \
 	$(LINTFLAGS) \
@@ -203,13 +268,18 @@ $(TEMPLATE_TMP_DIR)/$(LOCALE)/$(NS).soy.js: $(tplbuilddeps)
 
 # Builds the dependency file. Note that the file depends on the templates built
 # from the soy files in the project only. See above rule for details.
-depsdeps = js/** $(TEMPLATE_TMP_DIR)/$(LOCALE)/$(NS).soy.js
+depsdeps = js/* $(TEMPLATE_TMP_DIR)/$(LOCALE)/$(NS).soy.js
 $(BUILDDIR)/deps.js: $(depsdeps)
 	@echo -n 'Constructing project dependencies..'
 	@python $(DEPSWRITER_BIN) \
 	--root_with_prefix="js ../../../$(APPS_PATH)$(APPDIR)/js" \
 	--root_with_prefix="$(TEMPLATE_TMP_DIR)/$(LOCALE) ../../../$(APPS_PATH)/$(APPDIR)/$(TEMPLATE_TMP_DIR)/$(LOCALE)/" \
 	--output_file="$(BUILDDIR)/deps.js"
+
+
+../pstj/templates/icons.soy: ../pstj/templates/icons.xml
+	@echo -n 'Code auto-generation'
+	@cd ../pstj && make codegen
 
 # Extracts the translation messages from the templates in a file.
 # Translated file should be used to compile to a different locale.
@@ -227,7 +297,7 @@ $(I18NDIR)/translations_$(LOCALE).xlf: $(TERMPLATES_SOURCES)
 # possible files we might use even if we not really use them (as those might not
 # be imported in the app less file.
 # List of static files that are dependencies.
-lesssourcess = less/$(NS).less less/$(NS)/*.less ../smjs/less/*.less ../pstj/less/**.less
+lesssourcess = less/$(NS).less less/$(NS)/*.less ../smjs/less/*.less ../pstj/less/*/*.less
 less/$(NS).css: $(lesssourcess)
 	@echo -n 'Building CSS from LESS...'
 	lessc --no-ie-compat less/$(NS).less > less/$(NS).css
@@ -267,13 +337,14 @@ $(BUILDDIR)/cssmap-build.js: $(BUILDDIR)/$(NS).build.css
 # pstj lib files
 # pstj templates
 # simple css names map
-simpledeps = $(BUILDDIR)/$(NS)-cssmap.js js/** ../pstj/*/**.js
+simpledeps = $(BUILDDIR)/$(NS)-cssmap.js js/** ../pstj/*/**.js $(BUILDDIR)/filelist.txt
 $(BUILDDIR)/$(NS).simple.js: $(simpledeps)
 	@echo 'Performing simple compilation...'
 	$(COMPILER) \
 	--compilation_level=SIMPLE \
 	--js="$(BUILDDIR)/$(NS)-cssmap.js"  \
-	--js_output_file=$(BUILDDIR)/$(NS).simple.js
+	--js_output_file=$(BUILDDIR)/$(NS).simple.js \
+	$(FL)
 	@wc -c $(BUILDDIR)/$(NS).simple.js
 
 # Dummy rule to perform the simple compilation
@@ -289,30 +360,31 @@ simple: $(BUILDDIR)/$(NS).simple.js
 # pstj lib js files
 # pstj templates
 advanceddeps=$(BUILDDIR)/cssmap-build.js js/** $(TEMPLATE_TMP_DIR)/$(LOCALE)/*.js ../pstj/*/**.js
-$(BUILDDIR)/$(NS).advanced.js: $(advanceddeps)
+$(BUILDDIR)/$(NS).advanced.js: $(advanceddeps) $(BUILDDIR)/filelist.txt
 	@echo 'Performing advanced compilation...'
 	$(COMPILER) \
 	--compilation_level=ADVANCED \
 	--js="$(BUILDDIR)/cssmap-build.js"  \
-	--js_output_file=$(BUILDDIR)/$(NS).advanced.js
+	--js_output_file=$(BUILDDIR)/$(NS).advanced.js \
+	$(FL)
 	@wc -c $(BUILDDIR)/$(NS).advanced.js
 
 # Dummy call for compiling everything in advanced mode.
 # requirements:
 # same as the advanced compiled js,
 # the advance compiled css file
-advanced: $(BUILDDIR)/$(NS).build.css $(BUILDDIR)/$(NS).advanced.js
+advanced: $(BUILDDIR)/$(NS).build.css $(BUILDDIR)/$(NS).advanced.js options/*
 	@echo 'Done'
 
 
-$(BUILDDIR)/$(NS).debug.js: $(BUILDDIR)/$(NS)-cssmap.js js/** ../pstj/*/**.js $(TEMPLATE_TMP_DIR)/$(LOCALE)/*.js
+$(BUILDDIR)/$(NS).debug.js: $(BUILDDIR)/$(NS)-cssmap.js $(advanced) $(BUILDDIR)/filelist.txt
 	@echo 'Building debug JS...'
 	$(COMPILER) \
 	--compilation_level=ADVANCED \
 	--debug \
-	--formatting=PRETTY_PRINT
-	--js="$(BUILDDIR)/$(NS)-cssmap.js"  \
-	--js_output_file=$(BUILDDIR)/$(NS).debug.js
+	--formatting=PRETTY_PRINT \
+	--js_output_file=$(BUILDDIR)/$(NS).debug.js \
+	$(FL)
 
 debug: $(BUILDDIR)/$(NS).debug.js
 	@echo 'Done'
@@ -320,38 +392,61 @@ debug: $(BUILDDIR)/$(NS).debug.js
 # Creates a file list that can be used to create the module list when compiling
 # the project with module support
 # Set target specific variables (output file name and compilation level)
-# filelist: OUTFILE=$(BUILDDIR)/$(NS).filelist.txt
-# filelist: COMPILATION_LEVEL=SIMPLE
-filelist: $(BUILDDIR)/cssmap-build.js
+$(BUILDDIR)/filelist.txt: js/** tpl/$(LOCALE)/*.js ../pstj/*/**.js
 	@echo -n 'Compiling list of files for modules...'
-	$(COMPILER) \
-	--compilation_level=ADVANCED \
-	--js="$(BUILDDIR)/cssmap-build.js"  \
-	--output_manifest %outname%
-	--js_output_file=$(BUILDDIR)/filelist.txt
-	@echo 'Done'
+	@$(CLOSURE_BUILDER) -n $(NS) \
+	$(JSROOTS) $(JSDEPS) \
+	-o list \
+	--output_file=$(BUILDDIR)/filelist.txt
+	@echo 'Done building filelist'
 
+
+# $(FILELISTER) \
+# --only_closure_dependencies \
+# --output_manifest=$(BUILDDIR)/filelist.txt
+# @echo 'Done'
+
+
+# Provides means to inline the JS and CSS into a single deploy file.
+# WARNING this is not supported any longer.
 compact: advanced
 	@echo -n 'Inlining resources in main html file...'
 	node ../../node/inline.js $(NS)-deploy.html
 	@echo 'Done'
 
-check: js/** ../pstj/*/**.js ../smjs/*/**.js
+# For the check no need to build the file list, just use only closure and it
+# will spill out the errors.
+check: js/** ../pstj/*/**.js ../smjs/*/**.js $(BUILDDIR)/cssmap-build.js
 	$(COMPILER) \
 	--compilation_level=ADVANCED \
 	--js="$(BUILDDIR)/cssmap-build.js"  \
-	--js_output_file=/dev/null
+	--js_output_file=/tmp/check.js \
+	--only_closure_dependencies \
+	$(JSSOURCES)
 	@echo 'Done'
 
+checkspecific:
+	$(COMPILER) \
+	--compilation_level=ADVANCED \
+	--js="$(BUILDDIR)/cssmap-build.js"  \
+	--js_output_file=/tmp/check.js \
+	--only_closure_dependencies \
+	$(JSSOURCES)
+
+# Provides command to check all by linting and compiling.
 checkall: .linted .pstjlint .smjslint check
 
+# Here you can put a combination of the dependencies for external libraries
+# By default both pstj and smjs are included.
 libdeps: .pstjdeps .smjsdeps
 	@echo 'All library deps up to date'
 
-.pstjdeps: ../pstj/*/**.js
+# Provides means to force dependency recalculation in the pstj library.
+.pstjdeps: ../pstj/*/**.js ../pstj/*/*/*.js
 	cd ../pstj/ && make libdeps
 	touch .pstjdeps
 
+# Provides means to force dependency recalculation in the smjs library.
 .smjsdeps: ../smjs/*/**.js
 	cd ../smjs/ && make libdeps
 	touch .smjsdeps
