@@ -3,3 +3,4 @@ tpl/
 help/
 *sublime-*
 less/*.css
+.linted
