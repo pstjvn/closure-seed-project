@@ -6,7 +6,7 @@
  * want to go with module system and loading indication - those are not
  * handled automatically and you need to use corresponding utilities.
  *
- * @author Peter StJ (regardingscot@gmail.com)
+ * @author regardingscot@gmail.com (Peter StJ)
  */
 
 goog.provide('app');
