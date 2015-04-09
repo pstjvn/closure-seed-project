@@ -169,6 +169,7 @@ $(build_dir)/$(ns)-cssmap.build.js
 	$(build_js_compiler_option) \
 	--compilation_level=ADVANCED \
 	--flagfile=options/compile.ini \
+	--js=build/$(ns)-cssmap.build.js \
 	$(namespace_specific_flags) \
 	--js_output_file=$@ \
 	$(shell cat $(build_dir)/$(ns).filelist.txt | tr '\n' ' ')
