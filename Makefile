@@ -58,7 +58,7 @@ libraries:
 	@cd $(pstj_lib_dir) && make
 	@cd $(smjs_lib_dir) && make
 
-$(autogen_dir): $(shell find $$schema_dir -name '*.json')
+$(autogen_dir)/*.js: $(schema_dir)/*.json
 	node $(pstj_lib_dir)/nodejs/dtogen.js $(dto_prefix).gen.dto $(schema_dir)/ $(autogen_dir)/
 
 $(lintfile): $(public_source_files)
