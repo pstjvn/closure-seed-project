@@ -13,6 +13,6 @@ goog.provide('app');
 
 
 (function() {
-// Instanciate your app code here.
+  // Instanciate your app code here.
 
 })();
