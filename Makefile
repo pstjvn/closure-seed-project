@@ -91,7 +91,7 @@ $(template_build_dir)/$(locale)/*.soy.js
 	$(python) $(depswriter) $(public_deps_cmdline) --output_file=$@
 
 # Make the css file anew each time the main or any of its dependencies change
-less/$(ns).css: less/$(ns).less $(shell lessc -M less/$(ns).less | sed 's+rtt: ++g')
+less/$(ns).css: less/$(ns).less $(shell lessc -M less/$(ns).less .lesshelper | sed 's+\.lesshelper: ++g')
 	lessc --no-ie-compat $< > $@
 
 # read the css ini file for all gss compilations
