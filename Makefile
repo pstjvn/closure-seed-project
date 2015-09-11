@@ -4,7 +4,7 @@ smjs_lib_dir = ../smjs
 # Auto gen stuff
 schema_dir = schema
 autogen_dir = js/gen
-dto_prefix = longa
+dto_prefix = app
 # templates
 template_build_dir = tpl
 locale = en
@@ -44,7 +44,7 @@ public_source_files = $(shell find js/ -name '*.js')
 
 all: \
 libraries \
-$(autogen_dir) \
+$(autogen_dir)/*.js \
 $(lintfile) \
 $(build_dir)/$(ns).css \
 $(public_deps_file)
