@@ -57,7 +57,11 @@ libraries:
 	@cd $(pstj_lib_dir) && make
 	@cd $(smjs_lib_dir) && make
 
-$(autogen_dir)/*.js: $(schema_dir)/*.json
+# List only files that are scheme files.
+schema_files = $(shell find schema/ -name '*.json')
+
+# Automatically generate code for scheme files (RPC).
+$(autogen_dir)/*.js: $(schema_files)
 	node $(pstj_lib_dir)/nodejs/dtogen.js $(dto_prefix).gen.dto $(schema_dir)/ $(autogen_dir)/
 
 $(lintfile): $(public_source_files)
