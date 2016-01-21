@@ -2,26 +2,20 @@
 
 Use this seed project to kick-start a new closure project of your own.
 
-The following assumptions are made about your environment (and if not met
-the seed project might not work).
+Many assumptions are made about your environment and those should be met for this to work out of the box. The best way to install all needed dependencies is to use the [provioning](https://github.com/pstjvn/closure-env-provisioning) scripts. The author of this seed project uses and supports those, but you can install what you need manually as well (please see the Makefile in the linked project for list of required binaries).
 
-you have the following folder structure:
+The seed project assumes that you are about to build a full featured web applciation with the following being suported:
 
-* /apps/
-* /apps/pstj/ -- a copy of the [pstj library](https://github.com/pstjvn/pstj-closure)
-* /compiler/ -- here should live a copy of the latest compiler named compiler.jar
-* /library/ -- a copy of the [closure library](https://github.com/google/closure-library)
-* /stylesheets/ -- a copy of the latest stylesheet jar named closure-stylesheets.jar
-* /templates/
-* /templates/SoyMsgExtractor.jar
-* /templates/SoyToJsSrcCompiler.jar
-* /templates/deps.js
-* /templates/soyutils.js
-* /templates/soyutils_usegoog.js
+* less (for css)
+* gss (for class names minification)
+* soy templates
+* closure library
+* pstj library
+* closure compiler with advanced mode
+* closure compiler modules
+* web workers
+* json schemas (unofficial extentions!) for your data transfers
+* internationalization
+* multiple entry points (multiple apps as well as custom build via customized namespaces)
 
-It is also assumed that you will put this project in the /apps/ directory, next
-to the pstj library folder.
-
-
-java, python, bash and make are all reauired for this to work, code gen also
-require nodejs and npm.
+License: MIT
