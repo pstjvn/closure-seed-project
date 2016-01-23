@@ -4,3 +4,4 @@ help/
 *sublime-*
 less/*.css
 .linted
+node_modules/

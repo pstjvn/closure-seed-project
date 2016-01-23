@@ -12,6 +12,7 @@ i18n_dir = i18n
 build_dir = build
 jssource_dir = js
 debug = true
+lessc = node_modules/.bin/lessc
 
 include $(pstj_lib_dir)/Makefile.include
 pstj_public_source_dirs := $(public_source_dirs)
@@ -33,7 +34,6 @@ soy_compiler_options = \
 	--messageFilePathFormat "$(i18n_dir)/translations_$(locale).xlf" \
 	--shouldProvideRequireSoyNamespaces \
 	--shouldGenerateJsdoc \
-	--codeStyle concat \
 	--outputPathFormat '$(template_build_dir)/$(locale)/{INPUT_FILE_NAME_NO_EXT}.soy.js'
 
 # Redefine the variables for a project (from one for a library)
@@ -42,14 +42,17 @@ public_source_files = $(shell find js/ -name '*.js')
 
 
 all: \
+$(build_dir)/ \
 libraries \
 $(autogen_dir)/*.js \
 $(lintfile) \
 $(build_dir)/$(ns).css \
-$(public_deps_file)
+$(public_deps_file) \
+$(build_dir)/$(ns).build.js
 	@echo '>>> $(ns) done'
 
-build: $(build_dir)/$(ns).build.js
+$(build_dir)/:
+	mkdir $(build_dir)
 
 debug: $(build_dir)/$(ns).debug.js
 
