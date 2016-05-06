@@ -1,0 +1,17 @@
+{
+  "$schema": "",
+  "title": "Test",
+  "description": "Test scheme file",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "number",
+      "$_name": "userid",
+    },
+    "name": {
+      "type": "string",
+      "$_name": "username"
+    }
+  },
+  "required": "$_all"
+}

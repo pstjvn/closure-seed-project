@@ -5,5 +5,6 @@ if (typeof COMPILED == 'undefined') {
   CLOSURE_BASE_PATH = '../../../../library/closure/goog/';
   importScripts(CLOSURE_BASE_PATH + 'bootstrap/webworkers.js',
                 CLOSURE_BASE_PATH + 'base.js', CLOSURE_BASE_PATH + 'deps.js',
-                CLOSURE_BASE_PATH + '../../../apps/pstj/deps.js', 'main.js');
+                CLOSURE_BASE_PATH + '../../../apps/pstj/deps.js',
+                '../../build/deps.js', 'main.js');
 }

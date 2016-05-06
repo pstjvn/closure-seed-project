@@ -11,6 +11,7 @@
 
 goog.provide('app');
 
+goog.require('seedtest');
 
 (function() {
   // Instanciate your app code here.
