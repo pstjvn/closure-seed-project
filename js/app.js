@@ -9,11 +9,11 @@
  * @author regardingscot@gmail.com (Peter StJ)
  */
 
-goog.provide('app');
+goog.module('app');
 
-goog.require('seedtest');
+// NOTE: we have switched to using module system to improve code
+// readability and predictibility.
 
-(function() {
-  // Instanciate your app code here.
-
-})();
+// NOTE: If you need to use modules (closure compiler modules that is), you need
+// to bear in mind that the module calculations are now built with the compiler
+// itself rather than the calcdeps script.

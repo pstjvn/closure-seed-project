@@ -2,7 +2,7 @@
 
 ## I
 
-If you are not expecting to use closure modules (synamic code loading)
+If you are not expecting to use closure modules (dynamic code loading)
 you should disable the option in 'Makefile' (line 3 - set to false).
 
 ```
@@ -44,4 +44,4 @@ Relevant html files with all needed includes are provided to test all possible
 scenarios (development, dev with modules, production, production with modules)
 
 *NOTE: currently we do not generate the 'built' modules settings - you need to
-update those manually if you have diferent modules than the default.*
+update those manually if you have different modules than the default.*

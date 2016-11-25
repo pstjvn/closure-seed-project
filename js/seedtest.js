@@ -1,6 +1,8 @@
 /**
  * @fileoverview The namespace is provided only to test the seed project.
  *
+ * This file is an entry point that actually uses the web worker.
+ *
  * @author PeterStJ (regardingscot@gmail.com)
  */
 goog.provide('seedtest');
@@ -9,8 +11,9 @@ goog.require('goog.events');
 goog.require('pstj.app.worker');
 
 
-goog.events.listen(pstj.app.worker.getInstance(), goog.events.EventType.MESSAGE, function(e) {
-  console.log('Test worker', e.data);
-});
+goog.events.listen(pstj.app.worker.getInstance(),
+    goog.events.EventType.MESSAGE, function(e) {
+      console.log('Test worker', e.data);
+    });
 
 pstj.app.worker.getInstance().send('test 123');

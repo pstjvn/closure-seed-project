@@ -1,6 +1,6 @@
 ns = app
-dto_prefix = app
-use_worker = true
+dto_prefix = none
+use_worker = false
 locale = en
 build_dir = build
 autogen_dir = $(build_dir)/gen
@@ -197,6 +197,7 @@ jsmin:
 			$(build_js_compiler_option) \
 			$(namespace_specific_flags) \
 			--compilation_level=ADVANCED \
+			--formatting=PRETTY_PRINT \
 			--flagfile=options/compile.ini \
 			--js_output_file=$(js_min_file) \
 			--js=build/$(ns)-cssmap.min.js \
@@ -232,6 +233,18 @@ modulelist:
 			$(shell for item in `find js -name '*init.js' -print0 | xargs -0 ls | sort`; do echo $$item | sed 's+[^ ]*+-i &+'; done) >> $(modules_manifest)
 
 # $(shell for item in `grep -n _init $(modules_manifest) | grep -Eo '^[^:]+'`; do echo $$item; done)
+
+# use compiler to determine list of files, calcdeps does not understand
+# goog.module.
+modulelist2:
+	$(java) $(js_compiler) \
+			--dependency_mode=STRICT \
+			$(shell for item in `find js/modules -name '*init.js' -print0 | xargs -0 ls | sort`; do echo $$item | sed 's+.*/++' | sed 's+\.js++' | sed 's+[^ ]*+--entry_point=goog:&+'; done) \
+			--output_manifest build/trr \
+			--js_output_file /tmp/closure_compiler_build \
+			$(compiler_js_sources)
+			wc -l $(modules_manifest)
+			wc -l build/trr
 
 modulebuild: modulelist
 	$(java) $(js_compiler) \
