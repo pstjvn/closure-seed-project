@@ -196,12 +196,15 @@ jsmin:
 	$(java) $(js_compiler) \
 			$(build_js_compiler_option) \
 			$(namespace_specific_flags) \
+			--create_source_map=$(js_min_file).map \
 			--compilation_level=ADVANCED \
 			--formatting=PRETTY_PRINT \
 			--flagfile=options/compile.ini \
 			--js_output_file=$(js_min_file) \
 			--js=build/$(ns)-cssmap.min.js \
 			$(shell cat $(manifest) | tr '\n' ' ')
+	echo "//# sourceMappingURL=../$(ns).min.js.map" >> $(js_min_file)
+	mv $(js_min_file).map .
 
 jsworker:
 	$(java) $(js_compiler) \
